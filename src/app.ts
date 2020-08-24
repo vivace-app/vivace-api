@@ -11,14 +11,8 @@ app.use((req, res, next) => {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-const router: express.Router = express.Router()
-router.get('/api/getTest', (req: express.Request, res: express.Response) => {
-    res.send(req.query)
-})
-router.post('/api/postTest', (req: express.Request, res: express.Response) => {
-    res.send(req.body)
-})
+const router: express.Router = require('./v1/')
 
-app.use(router)
+app.use('/api/v1/', router)
 
 app.listen(3000, () => { console.log('Listening on port 3000...') })
