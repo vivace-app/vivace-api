@@ -1,0 +1,27 @@
+[
+    {
+        "version": "0.0.0",
+        "expirationDate": "2020-06-20",
+        "url": ""
+    },
+    {
+        "version": "0.0.1",
+        "expirationDate": "2020-06-28",
+        "url": ""
+    },
+    {
+        "version": "0.0.2",
+        "expirationDate": "2020-07-15",
+        "url": ""
+    },
+    {
+        "version": "0.0.3",
+        "expirationDate": "2020-07-20",
+        "url": ""
+    },
+    {
+        "version": "0.0.4",
+        "expirationDate": "2020-08-31",
+        "url": ""
+    }
+]
