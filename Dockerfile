@@ -14,6 +14,7 @@ RUN npm install
 
 # アプリケーションのソースをバンドルする
 COPY . .
+RUN npm run build
 
 EXPOSE 8080
-CMD [ "node", "app.js" ]
+CMD [ "node", "dist/app.js" ]
