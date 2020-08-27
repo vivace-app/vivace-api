@@ -121,10 +121,13 @@ export class CodeIssuance {
         })
     }
     static async getName(code: string) {
-        return new Promise((resolve) => {
+        return new Promise((resolve, reject) => {
             db.serialize(() => {
                 db.all(`SELECT name FROM issue_code WHERE code = "${code}" AND active = true`, (error: any, row: any) => {
-                    return resolve(row[0].name)
+                    if (row[0])
+                        return resolve(row[0].name)
+                    else
+                        return reject("error")
                 })
             })
         })

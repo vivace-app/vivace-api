@@ -74,6 +74,12 @@ router.get('/recovery', (req: express.Request, res: express.Response) => {
                         })
                     })
             })
+            .catch(err => {
+                res.status(500).json({
+                    success: false,
+                    msg: 'Invalid code'
+                })
+            })
     } else {
         res.status(500).json({
             success: false,
