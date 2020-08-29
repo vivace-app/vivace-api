@@ -42,6 +42,7 @@ router.post('/register', (req: express.Request, res: express.Response) => {
                     res.json({
                         success: true,
                         msg: 'Successfully created account',
+                        name: req.body.name,
                         token: token
                     })
                 }
@@ -70,6 +71,7 @@ router.post('/recovery', (req: express.Request, res: express.Response) => {
                         res.json({
                             success: true,
                             msg: 'Successfully created account',
+                            user: name,
                             token: token
                         })
                     })

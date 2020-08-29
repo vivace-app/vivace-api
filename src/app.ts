@@ -12,9 +12,9 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 const router1: express.Router = require('./v1/')
-const router2: express.Router = require('./v2/')
+const router2: express.Router = require('./v2.1/')
 
 app.use('/api/v1/', router1)
-app.use('/api/v2/', router2)
+app.use('/api/v2.1/', router2)
 
 app.listen(3000, () => { console.log('Listening on port 3000...') })
