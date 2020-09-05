@@ -7,7 +7,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: test
+      - name: Discord Message Notify
+        uses: appleboy/discord-action@0.0.3
+        with:
+          webhook_id: ${{ secrets.WEBHOOK_ID }}
+          webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
+          color: "#01A4FF"
+          username: "GitHub Actions"
+          args: ${{ github.REPOSITORY }} の最新版が更新されたため、デプロイを開始します。
+      - name: Deploy
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           TEST_SERVER_USER: ${{ secrets.TEST_SERVER_USER }}
