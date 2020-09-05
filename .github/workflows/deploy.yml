@@ -1,0 +1,17 @@
+name: Deploy to TEST_SERVER
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          TEST_SERVER_USER: ${{ secrets.TEST_SERVER_USER }}
+          TEST_SERVER_HOST: ${{ secrets.TEST_SERVER_HOST }}
+        run: echo "$SECRET_KEY" > secret_key
+          chmod 600 secret_key
+          ssh -oStrictHostKeyChecking=no ${TEST_SERVER_USER}@${TEST_SERVER_HOST} -i secret_key "cd ~/vivace-api && git pull origin master && bash stop_docker.sh && docker rm `docker ps -aq` && docker image rm user/vivace-app && docker build -t user/vivace-app ~/vivace-api/ && bash start_docker.sh"
