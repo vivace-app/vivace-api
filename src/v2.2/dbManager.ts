@@ -11,7 +11,7 @@ export class CommonDB {
         db.serialize(() => {
             db.run('CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(20), created_at DATETIME, last_login DATETIME)')
             db.run('CREATE TABLE IF NOT EXISTS issue_code (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(20), code VARCHAR(20), active BOOLEAN, created_at DATETIME, disabled_at DATETIME)')
-            db.run('CREATE TABLE IF NOT EXISTS score (id INTEGER PRIMARY KEY AUTOINCREMENT, music VARCHAR(40), name VARCHAR(20), score INT, created_at DATETIME)')
+            db.run('CREATE TABLE IF NOT EXISTS score (id INTEGER PRIMARY KEY AUTOINCREMENT, music VARCHAR(40), name VARCHAR(20), level VARCHAR(10), score INT, created_at DATETIME)')
         })
     }
 }
@@ -37,28 +37,28 @@ export class UserTable {
 }
 
 export class ScoreTable {
-    static async myScore(music: string, name: string) {
+    static async myScore(music: string, level: string, name: string) {
         return new Promise((resolve) => {
             db.serialize(() => {
-                db.all(`SELECT score FROM score WHERE music = "${music}" AND name = "${name}" ORDER BY score DESC LIMIT 1`, (error: any, row: any) => {
+                db.all(`SELECT score FROM score WHERE music = "${music}" AND level = "${level}" AND name = "${name}" ORDER BY score DESC LIMIT 1`, (error: any, row: any) => {
                     return resolve(row)
                 })
             })
         })
     }
-    static async topScore(music: string) {
+    static async topScore(music: string, level: string) {
         return new Promise((resolve) => {
             db.serialize(() => {
-                db.all(`SELECT name,score FROM score WHERE music = "${music}" ORDER BY score DESC LIMIT 1`, (error: any, row: any) => {
+                db.all(`SELECT name,score FROM score WHERE music = "${music}" AND level = "${level}" ORDER BY score DESC LIMIT 1`, (error: any, row: any) => {
                     return resolve(row)
                 })
             })
         })
     }
-    static async topTenScore(music: string) {
+    static async topTenScore(music: string, level: string) {
         return new Promise((resolve) => {
             db.serialize(() => {
-                db.all(`SELECT name,score FROM score WHERE music = "${music}" ORDER BY score DESC LIMIT 10`, (error: any, row: any) => {
+                db.all(`SELECT name,score FROM score WHERE music = "${music}" AND level = "${level}" ORDER BY score DESC LIMIT 10`, (error: any, row: any) => {
                     return resolve(row)
                 })
             })

@@ -42,6 +42,7 @@ router.post('/register', (req: express.Request, res: express.Response) => {
                     res.json({
                         success: true,
                         msg: 'Successfully created account',
+                        name: req.body.name,
                         token: token
                     })
                 }
@@ -55,7 +56,7 @@ router.post('/register', (req: express.Request, res: express.Response) => {
 })
 
 // ---- Account Recovery ----
-router.get('/recovery', (req: express.Request, res: express.Response) => {
+router.post('/recovery', (req: express.Request, res: express.Response) => {
     if (req.body.code) {
         CodeIssuance.getName(req.body.code)
             .then(name => {
@@ -70,6 +71,7 @@ router.get('/recovery', (req: express.Request, res: express.Response) => {
                         res.json({
                             success: true,
                             msg: 'Successfully created account',
+                            user: name,
                             token: token
                         })
                     })
@@ -89,9 +91,9 @@ router.get('/recovery', (req: express.Request, res: express.Response) => {
 })
 
 // ---- Get Top Score ----
-router.get('/topScore', (req, res) => {
-    if (req.body.music) {
-        ScoreTable.topScore(req.body.music)
+router.post('/topScore', (req, res) => {
+    if (req.body.music && req.body.level) {
+        ScoreTable.topScore(req.body.music, req.body.level)
             .then(data => {
                 res.json({
                     success: true,
@@ -107,9 +109,9 @@ router.get('/topScore', (req, res) => {
 })
 
 // ---- Get Top Ten Score ----
-router.get('/topTenScore', (req, res) => {
-    if (req.body.music) {
-        ScoreTable.topTenScore(req.body.music)
+router.post('/topTenScore', (req, res) => {
+    if (req.body.music && req.body.level) {
+        ScoreTable.topTenScore(req.body.music, req.body.level)
             .then(data => {
                 res.json({
                     success: true,
@@ -146,11 +148,11 @@ apiRoutes.use((req, res, next) => {
 })
 
 // ---- Get My Score ----
-apiRoutes.get('/myScore', (req, res) => {
-    if (req.body.music) {
+apiRoutes.post('/myScore', (req, res) => {
+    if (req.body.music && req.body.level) {
         const jwt = req.body.token.split('.')
         const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
-        ScoreTable.myScore(req.body.music, decode.user)
+        ScoreTable.myScore(req.body.music, req.body.level, decode.user)
             .then(data => {
                 res.json({
                     success: true,
@@ -167,10 +169,10 @@ apiRoutes.get('/myScore', (req, res) => {
 
 // ---- Score Registration ----
 apiRoutes.post('/registScore', (req, res) => {
-    if (req.body.music && req.body.score) {
+    if (req.body.music && req.body.level && req.body.score) {
         const jwt = req.body.token.split('.')
         const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
-        ScoreTable.register(req.body.music, decode.user, req.body.score)
+        ScoreTable.register(req.body.music, req.body.score, decode.user)
         res.json({
             success: true,
             msg: 'Successfully registerd score'
@@ -184,7 +186,7 @@ apiRoutes.post('/registScore', (req, res) => {
 })
 
 // ---- Code Generation ----
-apiRoutes.get('/issuingAccountCode', (req, res) => {
+apiRoutes.post('/issuingAccountCode', (req, res) => {
     const jwt = req.body.token.split('.')
     const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
     CodeIssuance.disableCode(decode.user)
