@@ -1,7 +1,7 @@
 FROM node
 
 # アプリケーションディレクトリを作成する
-WORKDIR /usr/src/vivace-app
+WORKDIR /usr/src/vivace-api
 
 # アプリケーションの依存関係をインストールする
 # ワイルドカードを使用して、package.json と package-lock.json の両方が確実にコピーされるようにします。

@@ -1,2 +1,6 @@
+.editorconfig
+.env.sample
+.git
+.github
+.gitignore
 node_modules
-npm-debug.log

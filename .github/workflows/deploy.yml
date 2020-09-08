@@ -25,3 +25,21 @@ jobs:
           echo "$SECRET_KEY" > secret_key
           chmod 600 secret_key
           ssh -oStrictHostKeyChecking=no -p ${SERVER_PORT} ${SERVER_USER}@${SERVER_HOST} -i secret_key "bash vivace-api/deploy.sh"
+      - name: Discord Failure Notify
+        if: failure()
+        uses: appleboy/discord-action@0.0.3
+        with:
+          webhook_id: ${{ secrets.WEBHOOK_ID }}
+          webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
+          color: "#E13915"
+          username: "GitHub Actions"
+          args: デプロイに失敗しました。ﾋﾟﾛﾋﾟﾛﾋﾟﾛﾘ
+      - name: Discord Success Notify
+        if: success()
+        uses: appleboy/discord-action@0.0.3
+        with:
+          webhook_id: ${{ secrets.WEBHOOK_ID }}
+          webhook_token: ${{ secrets.WEBHOOK_TOKEN }}
+          color: "#25E115"
+          username: "GitHub Actions"
+          args: デプロイに成功しました！
