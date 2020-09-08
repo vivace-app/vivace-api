@@ -185,7 +185,7 @@ apiRoutes.post('/registScore', (req, res) => {
     if (req.body.music && req.body.level && req.body.score) {
         const jwt = req.body.token.split('.')
         const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
-        ScoreTable.register(req.body.music, req.body.score, decode.user)
+        ScoreTable.register(req.body.music, req.body.level, req.body.score, decode.user)
         res.json({
             success: true,
             msg: 'Successfully registerd score'

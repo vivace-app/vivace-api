@@ -77,11 +77,11 @@ export class ScoreTable {
             })
         })
     }
-    static async register(music: string, name: string, score: number) {
+    static async register(music: string, level: string, score: number, name: string) {
         const now = new Date()
         db.serialize(() => {
-            const stmt = db.prepare(`INSERT INTO score (music, name, score, created_at) VALUES (?, ?, ?, ?)`)
-            stmt.run([music, name, score, dateformat(now, 'yyyy-mm-dd HH:MM:ss')])
+            const stmt = db.prepare(`INSERT INTO score (music, name, level, score, created_at) VALUES (?, ?, ?, ?, ?)`)
+            stmt.run([music, name, level, score, dateformat(now, 'yyyy-mm-dd HH:MM:ss')])
             stmt.finalize()
         })
     }
