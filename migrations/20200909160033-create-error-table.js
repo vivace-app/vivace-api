@@ -19,7 +19,7 @@ exports.up = function (db) {
         id: { type: 'int', autoIncrement: true, primaryKey: true },
         user: 'string',
         function: 'string',
-        error: 'text',
+        data: 'text',
         created_at: 'datetime',
         updated_at: 'datetime'
     });

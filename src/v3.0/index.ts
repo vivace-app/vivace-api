@@ -12,7 +12,7 @@ dotenv.config() // Read env file
 dbm.up() // Migrate database
 
 
-// -----  LICENCE TABLE  -------------------------------------------------------
+// -----  LICENCE  -------------------------------------------------------------
 
 router.get('/licence', (req: express.Request, res: express.Response) => {
     LicenceTable.getAllLicence()
@@ -23,19 +23,19 @@ router.get('/licence', (req: express.Request, res: express.Response) => {
             })
         })
         .catch(err => {
-            ErrorTable.postErrorLog(null, 'LicenceTable.getAllLicence()', err)
+            ErrorTable.postErrorLog(null, '[licence] LicenceTable.getAllLicence()', err)
             res.status(500).json({
                 success: false,
                 msg: 'Could not get from database'
             })
         })
 })
-// -----------------------------------------------------------------------------
 
 
-// ---- User Registration ----
+// -----  USER REGISTRATION  ---------------------------------------------------
+
 router.post('/register', (req: express.Request, res: express.Response) => {
-    if (req.body.name) {
+    if (typeof req.body.name !== 'undefined' && req.body.name.length) {
         UserTable.existUserCheck(req.body.name)
             .then(bool => {
                 if (bool) {
@@ -45,21 +45,37 @@ router.post('/register', (req: express.Request, res: express.Response) => {
                     })
                 } else {
                     UserTable.register(req.body.name)
-                    const now = new Date()
-                    const payload = {
-                        user: req.body.name,
-                        created_at: dateformat(now, 'yyyy-mm-dd HH:MM:ss')
-                    }
-                    const token = jwt.sign(payload, process.env.APP_KEY as string)
-                    res.json({
-                        success: true,
-                        msg: 'Successfully created account',
-                        name: req.body.name,
-                        token: token
-                    })
+                        .then(() => {
+                            const payload = {
+                                user: req.body.name,
+                                created_at: dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss')
+                            }
+                            const token = jwt.sign(payload, process.env.APP_KEY as string)
+                            res.json({
+                                success: true,
+                                msg: 'Successfully created account',
+                                name: req.body.name,
+                                token: token
+                            })
+                        })
+                        .catch(err => {
+                            ErrorTable.postErrorLog(req.body.name, '[register] UserTable.register()', err)
+                            res.status(500).json({
+                                success: false,
+                                msg: 'Account registration failed'
+                            })
+                        })
                 }
             })
+            .catch(err => {
+                ErrorTable.postErrorLog(req.body.name, '[register] UserTable.existUserCheck()', err)
+                res.status(500).json({
+                    success: false,
+                    msg: 'Account registration failed'
+                })
+            })
     } else {
+        ErrorTable.postErrorLog(null, '[register] name isset check', req.body.name)
         res.status(500).json({
             success: false,
             msg: 'Account registration failed'
@@ -67,17 +83,18 @@ router.post('/register', (req: express.Request, res: express.Response) => {
     }
 })
 
-// ---- Account Recovery ----
+
+// -----  ACCOUNT RECOVERY  ---------------------------------------------------
+
 router.post('/recovery', (req: express.Request, res: express.Response) => {
-    if (req.body.code) {
+    if (typeof req.body.code !== 'undefined' && req.body.code.length) {
         CodeTable.getName(req.body.code)
             .then(name => {
                 CodeTable.disableCode(name as string)
-                    .then(row => {
-                        const now = new Date()
+                    .then(() => {
                         const payload = {
                             user: name,
-                            created_at: dateformat(now, 'yyyy-mm-dd HH:MM:ss')
+                            created_at: dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss')
                         }
                         const token = jwt.sign(payload, process.env.APP_KEY as string)
                         res.json({
@@ -87,14 +104,24 @@ router.post('/recovery', (req: express.Request, res: express.Response) => {
                             token: token
                         })
                     })
+                    .catch(err => {
+                        ErrorTable.postErrorLog(null, '[recovery] CodeTable.disableCode()', err)
+                        res.status(500).json({
+                            success: false,
+                            msg: 'Failed to communicate with the database'
+                        })
+                    })
             })
             .catch(err => {
+                if (typeof err !== 'undefined' && err.length)
+                    ErrorTable.postErrorLog(null, '[recovery] CodeTable.getName()', err)
                 res.status(500).json({
                     success: false,
                     msg: 'Invalid code'
                 })
             })
     } else {
+        ErrorTable.postErrorLog(null, '[recovery] code isset check', req.body.code)
         res.status(500).json({
             success: false,
             msg: 'Invalid code'
@@ -102,9 +129,11 @@ router.post('/recovery', (req: express.Request, res: express.Response) => {
     }
 })
 
-// ---- Get Top Score ----
-router.post('/topScore', (req, res) => {
-    if (req.body.music && req.body.level) {
+
+// -----  GET TOP SCORE  -------------------------------------------------------
+
+router.post('/topScore', (req: express.Request, res: express.Response) => {
+    if (typeof req.body.music !== 'undefined' && req.body.music.length && typeof req.body.level !== 'undefined' && req.body.level.length) {
         ScoreTable.topScore(req.body.music, req.body.level)
             .then(data => {
                 res.json({
@@ -112,7 +141,15 @@ router.post('/topScore', (req, res) => {
                     data: data
                 })
             })
+            .catch(err => {
+                ErrorTable.postErrorLog(null, '[topScore] ScoreTable.topScore()', err)
+                res.status(500).json({
+                    success: false,
+                    msg: 'Failed getting score'
+                })
+            })
     } else {
+        ErrorTable.postErrorLog(null, '[topScore] music & level isset check', 'music=' + req.body.music + ', level=' + req.body.level)
         res.status(500).json({
             success: false,
             msg: 'Failed getting score'
@@ -120,9 +157,11 @@ router.post('/topScore', (req, res) => {
     }
 })
 
-// ---- Get Top Ten Score ----
-router.post('/topTenScore', (req, res) => {
-    if (req.body.music && req.body.level) {
+
+// -----  GET TOP TEN SCORE  ---------------------------------------------------
+
+router.post('/topTenScore', (req: express.Request, res: express.Response) => {
+    if (typeof req.body.music !== 'undefined' && req.body.music.length && typeof req.body.level !== 'undefined' && req.body.level.length) {
         ScoreTable.topTenScore(req.body.music, req.body.level)
             .then(data => {
                 res.json({
@@ -130,7 +169,15 @@ router.post('/topTenScore', (req, res) => {
                     data: data
                 })
             })
+            .catch(err => {
+                ErrorTable.postErrorLog(null, '[topTenScore] ScoreTable.topTenScore()', err)
+                res.status(500).json({
+                    success: false,
+                    msg: 'Failed getting score'
+                })
+            })
     } else {
+        ErrorTable.postErrorLog(null, '[topTenScore] music & level isset check', 'music=' + req.body.music + ', level=' + req.body.level)
         res.status(500).json({
             success: false,
             msg: 'Failed getting score'
@@ -138,9 +185,12 @@ router.post('/topTenScore', (req, res) => {
     }
 })
 
-// ====== JWT authentication required ==========================================
 
-authRouter.use((req, res, next) => {
+// =============================================================================
+// ====== JWT authentication required ===================================== ↓ ==
+// =============================================================================
+
+authRouter.use((req: express.Request, res: express.Response, next) => {
     var token = req.body.token
     if (!token) {
         return res.status(403).send({
@@ -148,9 +198,9 @@ authRouter.use((req, res, next) => {
             msg: 'No token provided'
         })
     }
-    jwt.verify(token, process.env.APP_KEY as string, (err: any, decoded: any) => {
+    jwt.verify(token, process.env.APP_KEY as string, (err: any) => {
         if (err) {
-            return res.json({
+            return res.status(403).json({
                 success: false,
                 msg: 'Invalid token'
             })
@@ -159,32 +209,51 @@ authRouter.use((req, res, next) => {
     })
 })
 
-// ---- Update Last Login ----
-authRouter.post('/updateLastLogin', (req, res) => {
+
+// -----  UPDATE LAST LOGIN  ---------------------------------------------------
+
+authRouter.post('/updateLastLogin', (req: express.Request, res: express.Response) => {
     const jwt = req.body.token.split('.')
     const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
     UserTable.updateLastLogin(decode.user)
-        .then(row => {
+        .then(() => {
             res.json({
                 success: true,
                 msg: 'Successfully updated last login'
             })
         })
+        .catch(err => {
+            ErrorTable.postErrorLog(decode.user, '[updateLastLogin] UserTable.updateLastLogin()', err)
+            res.status(500).json({
+                success: false,
+                msg: 'Could not update last login'
+            })
+        })
 })
 
-// ---- Get My Score ----
-authRouter.post('/myScore', (req, res) => {
-    if (req.body.music && req.body.level) {
-        const jwt = req.body.token.split('.')
-        const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
-        ScoreTable.myScore(req.body.music, req.body.level, decode.user)
+
+// -----  GET MY SCORE  --------------------------------------------------------
+
+authRouter.post('/myScore', (req: express.Request, res: express.Response) => {
+    const jwt = req.body.token.split('.')
+    const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
+    if (typeof req.body.music !== 'undefined' && req.body.music.length && typeof req.body.level !== 'undefined' && req.body.level.length) {
+        ScoreTable.myScore(decode.user, req.body.music, req.body.level)
             .then(data => {
                 res.json({
                     success: true,
                     data: data
                 })
             })
+            .catch(err => {
+                ErrorTable.postErrorLog(decode.user, '[myScore] ScoreTable.myScore()', err)
+                res.status(500).json({
+                    success: false,
+                    msg: 'Failed getting score'
+                })
+            })
     } else {
+        ErrorTable.postErrorLog(decode.user, '[myScore] music & level isset check', 'music=' + req.body.music + ', level=' + req.body.level)
         res.status(500).json({
             success: false,
             msg: 'Failed getting score'
@@ -192,17 +261,29 @@ authRouter.post('/myScore', (req, res) => {
     }
 })
 
-// ---- Score Registration ----
-authRouter.post('/registScore', (req, res) => {
-    if (req.body.music && req.body.level && req.body.score) {
-        const jwt = req.body.token.split('.')
-        const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
-        ScoreTable.register(req.body.music, req.body.level, req.body.score, decode.user)
-        res.json({
-            success: true,
-            msg: 'Successfully registerd score'
-        })
+
+// -----  SCORE REGISTRATION  --------------------------------------------------
+
+authRouter.post('/registScore', (req: express.Request, res: express.Response) => {
+    const jwt = req.body.token.split('.')
+    const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
+    if (typeof req.body.music !== 'undefined' && req.body.music.length && typeof req.body.level !== 'undefined' && req.body.level.length && typeof req.body.score !== 'undefined' && req.body.score.length) {
+        ScoreTable.register(decode.user, req.body.music, req.body.level, req.body.score)
+            .then(() => {
+                res.json({
+                    success: true,
+                    msg: 'Successfully registerd score'
+                })
+            })
+            .catch(err => {
+                ErrorTable.postErrorLog(decode.user, '[registScore] ScoreTable.register()', err)
+                res.status(500).json({
+                    success: false,
+                    msg: 'Score registration failed'
+                })
+            })
     } else {
+        ErrorTable.postErrorLog(decode.user, '[registScore] music & level & score isset check', 'music=' + req.body.music + ', level=' + req.body.level + ', score=' + req.body.score)
         res.status(500).json({
             success: false,
             msg: 'Score registration failed'
@@ -210,12 +291,14 @@ authRouter.post('/registScore', (req, res) => {
     }
 })
 
-// ---- Code Generation ----
-authRouter.post('/issuingAccountCode', (req, res) => {
+
+// -----  CODE GENERATION  -----------------------------------------------------
+
+authRouter.post('/issuingAccountCode', (req: express.Request, res: express.Response) => {
     const jwt = req.body.token.split('.')
     const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
     CodeTable.disableCode(decode.user)
-        .then(result => {
+        .then(() => {
             CodeTable.codeIssuance(decode.user)
                 .then(code => {
                     res.json({
@@ -224,9 +307,25 @@ authRouter.post('/issuingAccountCode', (req, res) => {
                         code: code
                     })
                 })
+                .catch(err => {
+                    ErrorTable.postErrorLog(decode.user, '[issuingAccountCode] CodeTable.codeIssuance()', err)
+                    res.status(500).json({
+                        success: false,
+                        msg: 'Code generation failed'
+                    })
+                })
+        })
+        .catch(err => {
+            ErrorTable.postErrorLog(decode.user, '[issuingAccountCode] CodeTable.disableCode()', err)
+            res.status(500).json({
+                success: false,
+                msg: 'Code generation failed'
+            })
         })
 })
 
+// =============================================================================
+// ======================================================================== ↑ ==
 // =============================================================================
 
 
