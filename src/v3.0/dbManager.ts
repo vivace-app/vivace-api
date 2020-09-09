@@ -1,30 +1,45 @@
-const sqlite = require('sqlite3').verbose()
+const sqlite = require('sqlite3').verbose() // TODO: Delete
+const db = new sqlite.Database('gamedata.sqlite') // TODO: Delete
 const crypto = require('crypto')
-const db = new sqlite.Database('gamedata.sqlite')
-const dbmigrate = require('db-migrate')
 const dateformat = require('dateformat')
+const dotenv = require('dotenv').config()
 const mysql = require('mysql')
 
+const crypto_letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+const crypto_count = 8
 const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'root'
-});
+    host: dotenv.parsed.MYSQL_HOST,
+    user: dotenv.parsed.MYSQL_USER,
+    password: dotenv.parsed.MYSQL_PASSWORD,
+    database: dotenv.parsed.MYSQL_DATABASE
+})
 
-const CRYPTO_LETTER = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-const CRYPTO_COUNT = 8
 
-export class CommonDB {
-    static async createTableIfNotExists() {
-        db.serialize(() => {
-            db.run('CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(20), created_at DATETIME, last_login DATETIME)')
-            db.run('CREATE TABLE IF NOT EXISTS issue_code (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(20), code VARCHAR(20), active BOOLEAN, created_at DATETIME, disabled_at DATETIME)')
-            db.run('CREATE TABLE IF NOT EXISTS score (id INTEGER PRIMARY KEY AUTOINCREMENT, music VARCHAR(40), name VARCHAR(20), level VARCHAR(10), score INT, created_at DATETIME)')
+// =====  LICENCE TABLE  =======================================================
+
+export class LicenceTable {
+    static async getAllLicence() {
+        return new Promise((resolve, reject) => {
+            connection.query("SELECT version, expirationDate, url FROM licence WHERE active = 1", function (err: any, row: any) {
+                if (err)
+                    return reject(err)
+                else
+                    return resolve(row)
+            })
         })
-        const dbm = dbmigrate.getInstance(true)
-        dbm.up()
     }
 }
+// =============================================================================
+
+
+// =====  ERROR TABLE  =========================================================
+
+export class ErrorTable {
+    static async postErrorLog(user: string | null, func: string, err: string) {
+        connection.query("INSERT INTO error SET ?", { user: user, function: func, error: err, created_at: dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss'), updated_at: dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss') })
+    }
+}
+// =============================================================================
 
 export class UserTable {
     static async existUserCheck(name: string) {
@@ -97,7 +112,7 @@ export class ScoreTable {
     }
 }
 
-export class CodeIssuance {
+export class CodeTable {
     static async existCodeCheck(code: string) {
         return new Promise((resolve) => {
             db.serialize(() => {
@@ -122,12 +137,12 @@ export class CodeIssuance {
     static async codeIssuance(name: string) {
         return new Promise((resolve) => {
 
-            const code = Array.from(crypto.randomFillSync(new Uint8Array(CRYPTO_COUNT))).map((n: any) => CRYPTO_LETTER[n % CRYPTO_LETTER.length]).join('')
+            const code = Array.from(crypto.randomFillSync(new Uint8Array(crypto_count))).map((n: any) => crypto_letter[n % crypto_letter.length]).join('')
 
-            CodeIssuance.existCodeCheck(code)
+            CodeTable.existCodeCheck(code)
                 .then(bool => {
                     if (bool) {
-                        CodeIssuance.codeIssuance(name)
+                        CodeTable.codeIssuance(name)
                             .then(code => {
                                 return resolve(code)
                             })

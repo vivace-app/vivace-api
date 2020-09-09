@@ -15,12 +15,11 @@ exports.setup = function (options, seedLink) {
 };
 
 exports.up = function (db) {
-    db.createTable('licence', {
+    db.createTable('error', {
         id: { type: 'int', autoIncrement: true, primaryKey: true },
-        version: 'string',
-        expirationDate: 'date',
-        url: 'string',
-        active: { type: 'boolean', defaultValue: true },
+        user: 'string',
+        function: 'string',
+        error: 'text',
         created_at: 'datetime',
         updated_at: 'datetime'
     });
@@ -28,7 +27,7 @@ exports.up = function (db) {
 };
 
 exports.down = function (db) {
-    db.dropTable('licence');
+    db.dropTable('error');
     return null;
 };
 

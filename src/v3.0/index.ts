@@ -1,25 +1,37 @@
 import dotenv from 'dotenv'
 import express from 'express'
 import jwt from 'jsonwebtoken'
-import { Buffer } from 'buffer';
-import { CommonDB, UserTable, CodeIssuance, ScoreTable } from './dbManager'
+import { CodeTable, LicenceTable, ScoreTable, UserTable, ErrorTable } from './dbManager'
 
-const apiRoutes = express.Router()
+const authRouter = express.Router()
 const dateformat = require('dateformat')
-const fs = require('fs');
-const router: express.Router = express.Router()
+const dbm = require('db-migrate').getInstance(true)
+const router = express.Router()
 
-dotenv.config()
+dotenv.config() // Read env file
+dbm.up() // Migrate database
 
-CommonDB.createTableIfNotExists()
 
-// ---- Licence ----
+// -----  LICENCE TABLE  -------------------------------------------------------
+
 router.get('/licence', (req: express.Request, res: express.Response) => {
-    res.json({
-        success: true,
-        version: JSON.parse(fs.readFileSync('./version.json', 'utf8'))
-    })
+    LicenceTable.getAllLicence()
+        .then(data => {
+            res.json({
+                success: true,
+                version: data
+            })
+        })
+        .catch(err => {
+            ErrorTable.postErrorLog(null, 'LicenceTable.getAllLicence()', err)
+            res.status(500).json({
+                success: false,
+                msg: 'Could not get from database'
+            })
+        })
 })
+// -----------------------------------------------------------------------------
+
 
 // ---- User Registration ----
 router.post('/register', (req: express.Request, res: express.Response) => {
@@ -58,9 +70,9 @@ router.post('/register', (req: express.Request, res: express.Response) => {
 // ---- Account Recovery ----
 router.post('/recovery', (req: express.Request, res: express.Response) => {
     if (req.body.code) {
-        CodeIssuance.getName(req.body.code)
+        CodeTable.getName(req.body.code)
             .then(name => {
-                CodeIssuance.disableCode(name as string)
+                CodeTable.disableCode(name as string)
                     .then(row => {
                         const now = new Date()
                         const payload = {
@@ -128,7 +140,7 @@ router.post('/topTenScore', (req, res) => {
 
 // ====== JWT authentication required ==========================================
 
-apiRoutes.use((req, res, next) => {
+authRouter.use((req, res, next) => {
     var token = req.body.token
     if (!token) {
         return res.status(403).send({
@@ -148,7 +160,7 @@ apiRoutes.use((req, res, next) => {
 })
 
 // ---- Update Last Login ----
-apiRoutes.post('/updateLastLogin', (req, res) => {
+authRouter.post('/updateLastLogin', (req, res) => {
     const jwt = req.body.token.split('.')
     const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
     UserTable.updateLastLogin(decode.user)
@@ -161,7 +173,7 @@ apiRoutes.post('/updateLastLogin', (req, res) => {
 })
 
 // ---- Get My Score ----
-apiRoutes.post('/myScore', (req, res) => {
+authRouter.post('/myScore', (req, res) => {
     if (req.body.music && req.body.level) {
         const jwt = req.body.token.split('.')
         const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
@@ -181,7 +193,7 @@ apiRoutes.post('/myScore', (req, res) => {
 })
 
 // ---- Score Registration ----
-apiRoutes.post('/registScore', (req, res) => {
+authRouter.post('/registScore', (req, res) => {
     if (req.body.music && req.body.level && req.body.score) {
         const jwt = req.body.token.split('.')
         const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
@@ -199,12 +211,12 @@ apiRoutes.post('/registScore', (req, res) => {
 })
 
 // ---- Code Generation ----
-apiRoutes.post('/issuingAccountCode', (req, res) => {
+authRouter.post('/issuingAccountCode', (req, res) => {
     const jwt = req.body.token.split('.')
     const decode = JSON.parse(Buffer.from(jwt[1], 'base64').toString())
-    CodeIssuance.disableCode(decode.user)
+    CodeTable.disableCode(decode.user)
         .then(result => {
-            CodeIssuance.codeIssuance(decode.user)
+            CodeTable.codeIssuance(decode.user)
                 .then(code => {
                     res.json({
                         success: true,
@@ -218,6 +230,6 @@ apiRoutes.post('/issuingAccountCode', (req, res) => {
 // =============================================================================
 
 
-router.use("/auth/", apiRoutes)
+router.use("/auth/", authRouter)
 
 module.exports = router
