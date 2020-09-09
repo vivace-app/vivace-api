@@ -21,4 +21,4 @@ app.use('/api/v2.2/', router2_2)
 app.use('/api/v2.3/', router2_3)
 app.use('/v3.0/', router3_0)
 
-app.listen(3000, () => { console.log('Listening on port 3000...') })
+app.listen(3000, () => { console.log('[INFO] Listening on port 3000...') })

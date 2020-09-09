@@ -10,11 +10,11 @@ const fs = require('fs');
 const router: express.Router = express.Router()
 
 dotenv.config()
+
 CommonDB.createTableIfNotExists()
 
 // ---- Licence ----
 router.get('/licence', (req: express.Request, res: express.Response) => {
-
     res.json({
         success: true,
         version: JSON.parse(fs.readFileSync('./version.json', 'utf8'))

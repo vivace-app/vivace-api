@@ -1,7 +1,15 @@
 const sqlite = require('sqlite3').verbose()
 const crypto = require('crypto')
 const db = new sqlite.Database('gamedata.sqlite')
+const dbmigrate = require('db-migrate')
 const dateformat = require('dateformat')
+const mysql = require('mysql')
+
+const connection = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: 'root'
+});
 
 const CRYPTO_LETTER = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const CRYPTO_COUNT = 8
@@ -13,6 +21,8 @@ export class CommonDB {
             db.run('CREATE TABLE IF NOT EXISTS issue_code (id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(20), code VARCHAR(20), active BOOLEAN, created_at DATETIME, disabled_at DATETIME)')
             db.run('CREATE TABLE IF NOT EXISTS score (id INTEGER PRIMARY KEY AUTOINCREMENT, music VARCHAR(40), name VARCHAR(20), level VARCHAR(10), score INT, created_at DATETIME)')
         })
+        const dbm = dbmigrate.getInstance(true)
+        dbm.up()
     }
 }
 
