@@ -9,8 +9,10 @@ const dbm = require('db-migrate').getInstance(true)
 const router = express.Router()
 
 dotenv.config() // Read env file
-dbm.up() // Migrate database
 
+setTimeout(() => {
+    dbm.up() // Migrate database
+}, 10000)
 
 // -----  LICENCE  -------------------------------------------------------------
 

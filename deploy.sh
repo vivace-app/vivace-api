@@ -1,10 +1,5 @@
-docker stop $(docker ps -q)
-for id in $(sudo docker ps -aq); do
-    sudo docker rm -f $id
-done
-docker rmi smpny7/vivace-api -f
 cd vivace-api
-git reset --hard HEAD^
+docker-compose down
+docker image rm vivace-api_nodejs
 git pull
-docker build -t smpny7/vivace-api .
-docker run -p 8080:3000 -d smpny7/vivace-api
+docker-compose up -d

@@ -1,0 +1,22 @@
+version: "3"
+services:
+  mysql:
+    environment:
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+    image: mysql:5.7.28
+    container_name: mysql
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./db/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./db/data:/var/lib/mysql
+    ports:
+      - 3306:3306
+  nodejs:
+    build: .
+    depends_on:
+      - mysql
+    container_name: nodejs
+    ports:
+      - 8080:3000
