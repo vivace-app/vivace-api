@@ -1,6 +1,6 @@
 import express from 'express'
 import jwt from 'jsonwebtoken'
-import { CodeTable, LicenceTable, ScoreTable, UserTable, ErrorTable } from './dbManager'
+import { CodeTable, LicenseTable, ScoreTable, UserTable, ErrorTable } from './dbManager'
 
 const authRouter = express.Router()
 const dateformat = require('dateformat')
@@ -8,10 +8,10 @@ const dotenv = require('dotenv').config()
 const router = express.Router()
 
 
-// -----  LICENCE  -------------------------------------------------------------
+// -----  LICENSE  -------------------------------------------------------------
 
-router.get('/licence', (req: express.Request, res: express.Response) => {
-    LicenceTable.getAllLicence()
+router.get('/license', (req: express.Request, res: express.Response) => {
+    LicenseTable.getAllLicense()
         .then(data => {
             res.json({
                 success: true,
@@ -19,7 +19,7 @@ router.get('/licence', (req: express.Request, res: express.Response) => {
             })
         })
         .catch(err => {
-            ErrorTable.postErrorLog(null, '[licence] LicenceTable.getAllLicence()', err)
+            ErrorTable.postErrorLog(null, '[license] LicenseTable.getAllLicense()', err)
             res.status(500).json({
                 success: false,
                 msg: 'Could not get from database'

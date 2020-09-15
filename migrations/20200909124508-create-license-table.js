@@ -15,7 +15,7 @@ exports.setup = function (options, seedLink) {
 };
 
 exports.up = function (db) {
-    db.createTable('licence', {
+    db.createTable('license', {
         id: { type: 'int', autoIncrement: true, primaryKey: true },
         version: 'string',
         expirationDate: 'date',
@@ -28,7 +28,7 @@ exports.up = function (db) {
 };
 
 exports.down = function (db) {
-    db.dropTable('licence');
+    db.dropTable('license');
     return null;
 };
 
