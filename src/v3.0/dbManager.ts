@@ -12,7 +12,6 @@ const pool = mysql.createPool({
     database: dotenv.parsed.MYSQL_DATABASE
 })
 
-// TODO: license
 // =====  LICENSE TABLE  =======================================================
 
 export class LicenseTable {

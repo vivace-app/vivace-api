@@ -20,4 +20,4 @@ services:
       - mysql
     container_name: nodejs
     ports:
-      - 8080:3000
+      - 80:3000
