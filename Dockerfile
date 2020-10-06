@@ -7,5 +7,5 @@ ENV TZ Asia/Tokyo
 RUN npm install
 RUN npm run build
 
-EXPOSE 80
+EXPOSE 80 443
 CMD [ "node", "dist/app.js" ]

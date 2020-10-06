@@ -17,6 +17,13 @@ const router3_0: express.Router = require('./v3.0/')
 app.use('/v3.0/', router3_0)
 
 setTimeout(() => {
-    app.listen(3000, () => { console.log('[INFO] Listening on port 3000...') })
+    require('greenlock-express')
+        .init({
+            packageRoot: __dirname + '/../',
+            maintainerEmail: "developer_ikep@gmail.com",
+            configDir: './greenlock.d',
+            cluster: false
+        })
+        .serve(app);
     dbm.up()
 }, 30000)
