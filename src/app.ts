@@ -15,9 +15,11 @@ app.use(express.urlencoded({ extended: true }))
 
 const router3_0: express.Router = require('./v3.0/')
 const router3_1: express.Router = require('./v3.1/')
+const router3_2: express.Router = require('./v3.2/')
 
 app.use('/v3.0/', router3_0)
 app.use('/v3.1/', router3_1)
+app.use('/v3.2/', router3_2)
 
 if (dotenv.parsed.TARGET_ENV == "development") {
     app.listen(3000, () => { console.log('[INFO] Listening on port 3000...') })
