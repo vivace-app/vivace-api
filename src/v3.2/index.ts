@@ -343,30 +343,30 @@ authRouter.post('/issuingAccountCode', (req: express.Request, res: express.Respo
 
 // -----  GET PLAY DATA  -------------------------------------------------------
 
-authRouter.post('/getPlayData', (req: express.Request, res: express.Response) => {
-    if (typeof req.body.id !== 'undefined' && req.body.id.length && typeof req.body.level !== 'undefined' && req.body.level.length) {
-        MusicTable.getPlayData(req.body.id + 1, req.body.level)
-            .then(data => {
-                res.json({
-                    success: true,
-                    data: data
-                })
-            })
-            .catch(err => {
-                ErrorTable.postErrorLog(null, '[music] MusicTable.getPlayData()', err)
-                res.status(500).json({
-                    success: false,
-                    msg: 'Could not get play data'
-                })
-            })
-    } else {
-        ErrorTable.postErrorLog(null, '[getPlayData] id & level isset check', 'id=' + req.body.id + ', level=' + req.body.level)
-        res.status(500).json({
-            success: false,
-            msg: 'Could not get play data'
-        })
-    }
-})
+// authRouter.post('/getPlayData', (req: express.Request, res: express.Response) => {
+//     if (typeof req.body.id !== 'undefined' && req.body.id.length && typeof req.body.level !== 'undefined' && req.body.level.length) {
+//         MusicTable.getPlayData(req.body.id + 1, req.body.level)
+//             .then(data => {
+//                 res.json({
+//                     success: true,
+//                     data: data
+//                 })
+//             })
+//             .catch(err => {
+//                 ErrorTable.postErrorLog(null, '[music] MusicTable.getPlayData()', err)
+//                 res.status(500).json({
+//                     success: false,
+//                     msg: 'Could not get play data'
+//                 })
+//             })
+//     } else {
+//         ErrorTable.postErrorLog(null, '[getPlayData] id & level isset check', 'id=' + req.body.id + ', level=' + req.body.level)
+//         res.status(500).json({
+//             success: false,
+//             msg: 'Could not get play data'
+//         })
+//     }
+// })
 
 
 // =============================================================================

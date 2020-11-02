@@ -42,7 +42,7 @@ export class MusicTable {
             pool.getConnection(function (error: any, connection: any) {
                 if (error)
                     throw error
-                connection.query("SELECT id, name, updated_at FROM music WHERE active = true", function (err: any, row: any) {
+                connection.query("SELECT id, name, url_easy, url_basic, url_hard, url_demon, url_music, url_music_preview, updated_at FROM music WHERE active = true", function (err: any, row: any) {
                     connection.release()
                     if (err)
                         return reject(err)
@@ -68,24 +68,6 @@ export class MusicTable {
     //         })
     //     })
     // }
-
-    static async getPlayData(id: number, level: string) {
-        const level_column = LevelValidation(level)
-
-        return new Promise((resolve, reject) => {
-            pool.getConnection(function (error: any, connection: any) {
-                if (error)
-                    throw error
-                connection.query("SELECT " + level_column + ", url_music FROM music WHERE id = ? AND active = true", [id], function (err: any, row: any) {
-                    connection.release()
-                    if (err)
-                        return reject(err)
-                    else
-                        return resolve(row)
-                })
-            })
-        })
-    }
 }
 // =============================================================================
 
