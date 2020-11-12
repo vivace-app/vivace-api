@@ -1,5 +1,5 @@
 {
-    "dev": {
+    "development": {
         "driver": "mysql",
         "host": {
             "ENV": "MYSQL_HOST"
@@ -12,6 +12,21 @@
         },
         "database": {
             "ENV": "MYSQL_DATABASE"
+        }
+    },
+    "test": {
+        "driver": "pg",
+        "host": {
+            "ENV": "PG_HOST"
+        },
+        "user": {
+            "ENV": "PG_USER"
+        },
+        "password": {
+            "ENV": "PG_PASSWORD"
+        },
+        "database": {
+            "ENV": "PG_DATABASE"
         }
     }
 }

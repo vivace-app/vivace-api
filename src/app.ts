@@ -16,13 +16,18 @@ app.use(express.urlencoded({ extended: true }))
 const router3_0: express.Router = require('./v3.0/')
 const router3_1: express.Router = require('./v3.1/')
 const router3_2: express.Router = require('./v3.2/')
+const router3_3: express.Router = require('./v3.3/')
 
 app.use('/v3.0/', router3_0)
 app.use('/v3.1/', router3_1)
 app.use('/v3.2/', router3_2)
+app.use('/v3.3/', router3_3)
 
 if (dotenv.parsed.TARGET_ENV == "development") {
     app.listen(3000, () => { console.log('[INFO] Listening on port 3000...') })
+    dbm.up()
+} else if (dotenv.parsed.TARGET_ENV == "test") {
+    app.listen(80, () => { console.log('[INFO] Listening on port 80...') })
     dbm.up()
 } else if (dotenv.parsed.TARGET_ENV == "production") {
     setTimeout(() => {
