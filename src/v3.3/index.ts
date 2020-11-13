@@ -4,8 +4,10 @@ import { CodeTable, LicenseTable, MusicTable, ScoreTable, UserTable, ErrorTable 
 
 const authRouter = express.Router()
 const dateformat = require('dateformat')
-const dotenv = require('dotenv').config()
+// const dotenv = require('dotenv').config()
 const router = express.Router()
+
+require('dotenv').config();
 
 
 // -----  LICENSE  -------------------------------------------------------------
@@ -66,7 +68,7 @@ router.post('/register', (req: express.Request, res: express.Response) => {
                                 user: req.body.name,
                                 created_at: dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss')
                             }
-                            const token = jwt.sign(payload, dotenv.parsed.APP_KEY as string)
+                            const token = jwt.sign(payload, process.env.APP_KEY as string)
                             res.json({
                                 success: true,
                                 msg: 'Successfully created account',
@@ -112,7 +114,7 @@ router.post('/recovery', (req: express.Request, res: express.Response) => {
                             user: name,
                             created_at: dateformat(Date.now(), 'yyyy-mm-dd HH:MM:ss')
                         }
-                        const token = jwt.sign(payload, dotenv.parsed.APP_KEY as string)
+                        const token = jwt.sign(payload, process.env.APP_KEY as string)
                         res.json({
                             success: true,
                             msg: 'Successfully created account',
@@ -214,7 +216,7 @@ authRouter.use((req: express.Request, res: express.Response, next) => {
             msg: 'No token provided'
         })
     }
-    jwt.verify(token, dotenv.parsed.APP_KEY as string, (err: any) => {
+    jwt.verify(token, process.env.APP_KEY as string, (err: any) => {
         if (err) {
             return res.status(403).json({
                 success: false,

@@ -1,26 +1,28 @@
 const crypto = require('crypto')
 const dateformat = require('dateformat')
-const dotenv = require('dotenv').config()
+// const dotenv = require('dotenv').config()
 const mysql = require('mysql')
 var pg = require('pg')
+
+require('dotenv').config();
 
 const crypto_letter = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 const crypto_count = 8
 
 const pool: any = (() => {
-    if (dotenv.parsed.TARGET_ENV == "test") {
+    if (process.env.NODE_ENV == "test") {
         return pg.createPool({
-            host: dotenv.parsed.PG_HOST,
-            user: dotenv.parsed.PG_USER,
-            password: dotenv.parsed.PG_PASSWORD,
-            database: dotenv.parsed.PG_DATABASE
+            host: process.env.PG_HOST,
+            user: process.env.PG_USER,
+            password: process.env.PG_PASSWORD,
+            database: process.env.PG_DATABASE
         })
     } else {
         return mysql.createPool({
-            host: dotenv.parsed.MYSQL_HOST,
-            user: dotenv.parsed.MYSQL_USER,
-            password: dotenv.parsed.MYSQL_PASSWORD,
-            database: dotenv.parsed.MYSQL_DATABASE
+            host: process.env.MYSQL_HOST,
+            user: process.env.MYSQL_USER,
+            password: process.env.MYSQL_PASSWORD,
+            database: process.env.MYSQL_DATABASE
         })
     }
 })
