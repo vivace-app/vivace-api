@@ -22,7 +22,7 @@ if (process.env.NODE_ENV == "development") {
     app.listen(3000, () => { console.log('[INFO] Listening on port 3000...') })
     dbm.up()
 } else if (process.env.NODE_ENV == "test") {
-    app.listen(80, () => { console.log('[INFO] Listening on port 80...') })
+    app.listen(process.env.PORT || 80, () => { console.log('[INFO] Listening on port ' + (process.env.PORT || 80) + '...') })
     dbm.up()
 } else if (process.env.NODE_ENV == "production") {
     setTimeout(() => {
